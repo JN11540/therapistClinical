@@ -1,7 +1,12 @@
+import asyncio
+import logging
+
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from core.config import Settings
+
+logger = logging.getLogger(__name__)
 
 settings = Settings()
 engine = create_async_engine(settings.POSTGRES_URI, pool_pre_ping=True)
@@ -18,8 +23,19 @@ async def connect_db() -> None:
     import model.treatment              # noqa: F401
     import model.treatment_content      # noqa: F401
 
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    max_retries = settings.DB_CONNECT_MAX_RETRIES
+    delay = settings.DB_CONNECT_RETRY_DELAY
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            return
+        except Exception as e:
+            if attempt == max_retries:
+                raise
+            logger.warning(f"DB not ready ({e}), retry {attempt}/{max_retries} in {delay}s...")
+            await asyncio.sleep(delay)
 
 
 async def disconnect_db() -> None:

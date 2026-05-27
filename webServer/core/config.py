@@ -15,3 +15,5 @@ class Settings:
     REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
     REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", None)
     SESSION_EXPIRE_SECONDS: int = int(os.environ.get("SESSION_EXPIRE_SECONDS", 3600))
+    DB_CONNECT_MAX_RETRIES: int = int(os.environ.get("DB_CONNECT_MAX_RETRIES", 10))
+    DB_CONNECT_RETRY_DELAY: int = int(os.environ.get("DB_CONNECT_RETRY_DELAY", 3))
