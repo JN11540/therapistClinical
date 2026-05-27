@@ -13,7 +13,11 @@ class Redis:
 
     async def create_redis_pool(self):
         self.pool = await create_pool(
-            RedisSettings(host=Settings.REDIS_HOST, port=Settings.REDIS_PORT)
+            RedisSettings(
+                host=Settings.REDIS_HOST,
+                port=Settings.REDIS_PORT,
+                password=Settings.REDIS_PASSWORD,
+            )
         )
 
     async def close_redis_pool(self):
