@@ -1,0 +1,25 @@
+{
+  "id": 5,
+  "name": "PLAN-352988F1",
+  "patient_id": 1,
+  "start_time": 1777161600,
+  "end_time": 1777680000,
+  "contents": [
+    {
+      "id": 17,
+      "exercise_id": 1,
+      "sets": 1,
+      "reps": 1,
+      "set_rest_time": 1,
+      "date": 1777248000
+    },
+    {
+      "id": 18,
+      "exercise_id": 2,
+      "sets": 1,
+      "reps": 1,
+      "set_rest_time": 1,
+      "date": 1777248000
+    }
+  ]
+}
