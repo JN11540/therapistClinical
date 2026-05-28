@@ -23,7 +23,7 @@ class AuthService:
                 return await HttpResponseMethod.bad_request(
                     message="Invalid password"
                 )
-            return JSONResponse(content={"status": "ok"})
+            return JSONResponse(content={"status": "ok", "clinician_id": clinician.id})
         except Exception as e:
             return await HttpResponseMethod.internal_server_error(message=str(e))
 
