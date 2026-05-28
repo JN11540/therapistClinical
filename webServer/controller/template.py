@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Request
+from fastapi.responses import FileResponse
 from fastapi.templating import Jinja2Templates
 
-from core.config import TEMPLATE_DIR
+from core.config import INDEX_HTML, TEMPLATE_DIR
 
 router = APIRouter(tags=["pages"])
 
@@ -9,8 +10,8 @@ templates = Jinja2Templates(directory=TEMPLATE_DIR)
 
 
 @router.get("/index")
-async def page_index(request: Request):
-    return templates.TemplateResponse(request, "index.html")
+async def page_index():
+    return FileResponse(INDEX_HTML)
 
 
 @router.get("/")
