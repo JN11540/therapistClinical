@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_session
-from core.redis import Redis, get_redis
 from schema.auth import LoginRequest
 from service.auth import AuthService
 
@@ -15,14 +14,10 @@ _service = AuthService()
 async def login(
     data: LoginRequest,
     session: AsyncSession = Depends(get_session),
-    redis: Redis = Depends(get_redis),
 ):
-    return await _service.login(session, redis, data)
+    return await _service.login(session, data)
 
 
 @router.post("/logout")
-async def logout(
-    request: Request,
-    redis: Redis = Depends(get_redis),
-):
-    return await _service.logout(request, redis)
+async def logout():
+    return await _service.logout()
