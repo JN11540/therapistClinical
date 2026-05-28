@@ -3,8 +3,9 @@ from typing import Any, Dict, Optional
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # therapistClinical/
-STATIC_DIR = BASE_DIR / "webClient" / "static"
-TEMPLATE_DIR = BASE_DIR / "webClient" / "template"
+STATIC_DIR   = BASE_DIR / "webClient" / "www" / "static"
+TEMPLATE_DIR = BASE_DIR / "webClient" / "www" / "template"
+INDEX_HTML   = BASE_DIR / "webClient" / "www" / "index.html"
 EXERCISE_JSON = BASE_DIR / "webServer" / "util" / "exercise.json"
 TREATMENT_JSON = BASE_DIR / "webServer" / "util" / "treatment.json"
 
