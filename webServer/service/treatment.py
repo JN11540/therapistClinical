@@ -1,3 +1,4 @@
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.httpResponseMethod import HttpResponseMethod
@@ -15,6 +16,7 @@ from schema.treatment import (
 )
 from util.datetimeConverter import datetimeConverter
 from util.emailSender import EmailSender
+from util.qrCodeService import QRCodeService
 
 
 class TreatmentService:
@@ -259,6 +261,35 @@ class TreatmentService:
             )
         except Exception as e:
             print(f"[send_email] ERROR: {type(e).__name__}: {e}", flush=True)
+            return await HttpResponseMethod.internal_server_error(message=str(e))
+
+    async def get_qrcode(self, session: AsyncSession, treatment_id: int):
+        try:
+            treatment = await self.crud_treatment.get(session, id=treatment_id)
+            if treatment is None:
+                return await HttpResponseMethod.not_found(
+                    message=f"Treatment {treatment_id} not found"
+                )
+            contents = await self.crud_content.get_by_treatment_id(session, treatment_id)
+            plan_data = {
+                "id": treatment.id,
+                "name": treatment.name,
+                "patient_id": treatment.patient_id,
+                "start_time": treatment.start_time,
+                "end_time": treatment.end_time,
+                "contents": [
+                    {k: v for k, v in c.dict().items() if k != "treatment_id"}
+                    for c in contents
+                ],
+            }
+            qr_service = QRCodeService()
+            qr_service.generate_qrcode(data=plan_data)
+            return FileResponse(
+                path=str(qr_service._output_path),
+                media_type="image/png",
+                filename=f"treatment_{treatment_id}_qrcode.png",
+            )
+        except Exception as e:
             return await HttpResponseMethod.internal_server_error(message=str(e))
 
     async def get_by_patient_id(self, session: AsyncSession, patient_id: int):

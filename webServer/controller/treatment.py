@@ -42,6 +42,14 @@ async def get_treatment_full(
     return await _service.get_full(session, treatment_id)
 
 
+@router.get("/{treatment_id}/qrcode")
+async def get_treatment_qrcode(
+    treatment_id: int,
+    session: AsyncSession = Depends(get_session),
+):
+    return await _service.get_qrcode(session, treatment_id)
+
+
 @router.post("/{treatment_id}/send-email")
 async def send_treatment_email(
     treatment_id: int,
