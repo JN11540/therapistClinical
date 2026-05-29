@@ -5,6 +5,9 @@ from crud.clinician import CRUDClinician
 from crud.patient import CRUDPatient
 from crud.measurement import CRUDMeasurement
 from crud.objective_measurement import CRUDObjectiveMeasurement
+from crud.treatment import CRUDTreatment
+from crud.treatment_content import CRUDTreatmentContent
+from crud.treatment_result import CRUDTreatmentResult
 from schema.patient import CreateRequest, UpdateRequest, PatientCreate, PatientUpdate, PatientResponse
 from schema.measurement import MeasurementListItem
 from schema.objective_measurement import ObjectiveMeasurementItem
@@ -18,6 +21,9 @@ class PatientService:
         self.crud_clinician = CRUDClinician()
         self.crud_measurement = CRUDMeasurement()
         self.crud_obj = CRUDObjectiveMeasurement()
+        self.crud_treatment = CRUDTreatment()
+        self.crud_content = CRUDTreatmentContent()
+        self.crud_result = CRUDTreatmentResult()
 
     async def create(self, session: AsyncSession, data: CreateRequest):
         try:
@@ -113,6 +119,15 @@ class PatientService:
                 return await HttpResponseMethod.not_found(
                     message=f"Patient {patient_id} not found"
                 )
+            treatments = await self.crud_treatment.get_multi(session, patient_id=patient_id)
+            for t in treatments:
+                await self.crud_result.delete_by_treatment_id(session, t.id)
+                await self.crud_content.delete_by_treatment_id(session, t.id)
+                await self.crud_treatment.delete(session, db_obj=t)
+            measurements = await self.crud_measurement.get_multi(session, patient_id=patient_id)
+            for m in measurements:
+                await self.crud_obj.delete_by_measurement_id(session, m.id)
+                await self.crud_measurement.delete(session, db_obj=m)
             await self.crud_patient.delete(session, db_obj=db_obj)
             return await HttpResponseMethod.ok(
                 message=f"Patient {patient_id} deleted successfully",
