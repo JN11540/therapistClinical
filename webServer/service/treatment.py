@@ -205,21 +205,28 @@ class TreatmentService:
 
     async def send_email(self, session: AsyncSession, treatment_id: int):
         try:
+            print(f"[send_email] start, treatment_id={treatment_id}", flush=True)
+
             treatment = await self.crud_treatment.get(session, id=treatment_id)
             if treatment is None:
+                print(f"[send_email] treatment {treatment_id} not found", flush=True)
                 return await HttpResponseMethod.not_found(
                     message=f"Treatment {treatment_id} not found"
                 )
+            print(f"[send_email] treatment found: {treatment.name}", flush=True)
 
             patient = await self.crud_patient.get(session, id=treatment.patient_id)
             if patient is None:
+                print(f"[send_email] patient {treatment.patient_id} not found", flush=True)
                 return await HttpResponseMethod.not_found(
                     message=f"Patient {treatment.patient_id} not found"
                 )
             if not patient.email:
+                print(f"[send_email] patient has no email", flush=True)
                 return await HttpResponseMethod.bad_request(
                     message="個案尚未設定 email"
                 )
+            print(f"[send_email] patient email={patient.email}", flush=True)
 
             contents = await self.crud_content.get_by_treatment_id(session, treatment_id)
             plan_data = {
@@ -234,6 +241,7 @@ class TreatmentService:
                 ],
             }
 
+            print(f"[send_email] building email message", flush=True)
             sender = EmailSender()
             sender.build_message(
                 receiver_email=patient.email,
@@ -241,12 +249,16 @@ class TreatmentService:
             )
             sender.attach_body(f"您好，\n\n請查收附件中的治療計畫「{treatment.name}」。\n\n謝謝！")
             sender.attach_json(plan_data)
+
+            print(f"[send_email] calling aiosmtplib.send ...", flush=True)
             await sender.send()
+            print(f"[send_email] email sent successfully", flush=True)
 
             return await HttpResponseMethod.ok(
                 message=f"治療計畫已成功寄送至 {patient.email}"
             )
         except Exception as e:
+            print(f"[send_email] ERROR: {type(e).__name__}: {e}", flush=True)
             return await HttpResponseMethod.internal_server_error(message=str(e))
 
     async def get_by_patient_id(self, session: AsyncSession, patient_id: int):
