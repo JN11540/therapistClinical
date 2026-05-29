@@ -241,7 +241,7 @@ class TreatmentService:
             )
             sender.attach_body(f"您好，\n\n請查收附件中的治療計畫「{treatment.name}」。\n\n謝謝！")
             sender.attach_json(plan_data)
-            sender.send()
+            await sender.send()
 
             return await HttpResponseMethod.ok(
                 message=f"治療計畫已成功寄送至 {patient.email}"
