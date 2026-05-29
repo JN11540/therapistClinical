@@ -31,6 +31,10 @@ services:
       POSTGRES_URI: postgresql+asyncpg://clinical:Damn13258@db:5432/clinical_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      EMAIL_SENDER: edward1325811540@gmail.com
+      EMAIL_PASSWORD: "mgoz vyzu xljp atgr"
+      EMAIL_SMTP_SERVER: smtp.gmail.com
+      EMAIL_SMTP_PORT: 587
     depends_on:
       db:
         condition: service_healthy
