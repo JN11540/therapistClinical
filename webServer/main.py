@@ -35,6 +35,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="TherapistClinical API", lifespan=lifespan)
 
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 app.include_router(template_router)
