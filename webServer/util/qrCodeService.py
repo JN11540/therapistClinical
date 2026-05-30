@@ -8,11 +8,13 @@ from pathlib import Path
 
 import qrcode as qrcode_lib
 
+from dotenv import load_dotenv
+load_dotenv()
 
 class QRCodeService:
 
     def __init__(self):
-        self._secret = os.environ.get("SECRET_KEY", "")
+        self._secret = os.environ.get("SECRET_KEY", "bd31e10e3121be9b9229589e076bc3199f1529a00badd75a91192694fc8dfcbf")
         self._expiry_minutes = 10
         self._output_path = Path(__file__).parent / "patient_qrcode.png"
 
