@@ -17,7 +17,7 @@ class QRCodeService:
         self._output_path = Path(__file__).parent / "patient_qrcode.png"
 
     def generate_sig(self, payload: dict) -> str:
-        payload_str = json.dumps(payload, sort_keys=True, ensure_ascii=False)
+        payload_str = json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(',', ':'))
         sig = hmac.new(
             self._secret.encode("utf-8"),
             payload_str.encode("utf-8"),
