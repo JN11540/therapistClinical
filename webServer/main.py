@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -13,7 +14,7 @@ from controller.objective_measurement import router as objective_measurement_rou
 from controller.exercise import router as exercise_router
 from controller.treatment import router as treatment_router
 from controller.treatment_result import router as treatment_result_router
-from core.database import connect_db, disconnect_db
+from core.database import connect_db, disconnect_db, db_heartbeat
 from core.redis import Redis
 from service.exercise import ExerciseService
 
@@ -26,7 +27,13 @@ async def lifespan(app: FastAPI):
     app.state.redis = redis
     await connect_db()
     await ExerciseService().seed_exercises()
+    heartbeat_task = asyncio.create_task(db_heartbeat())
     yield
+    heartbeat_task.cancel()
+    try:
+        await heartbeat_task
+    except asyncio.CancelledError:
+        pass
     await disconnect_db()
     await redis.close_redis_pool()
 
