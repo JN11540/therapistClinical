@@ -5,6 +5,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # therapistClinical/
 EXERCISE_JSON = BASE_DIR / "webServer" / "util" / "exercise.json"
 TREATMENT_JSON = BASE_DIR / "webServer" / "util" / "treatment.json"
+CONTRAINDICATION_JSON = BASE_DIR / "webServer" / "util" / "contraindication.json"
 
 class Settings:
     POSTGRES_URI = os.environ.get(

@@ -12,65 +12,66 @@ webServer/
 │   ├── __init__.py
 │   ├── auth.py
 │   ├── clinician.py
-│   ├── patient.py
+│   ├── exercise.py
 │   ├── measurement.py
-│   ├── rom_assessment.py
-│   ├── mmt_assessment.py
-│   ├── tug_assessment.py
-│   ├── sf_36_assessment.py
-│   ├── womac_assessment.py
-│   └── koos_assessment.py
+│   ├── objective_measurement.py
+│   ├── patient.py
+│   ├── template.py
+│   ├── treatment.py
+│   └── treatment_result.py
 ├── service/
 │   ├── __init__.py
+│   ├── auth.py
 │   ├── clinician.py
-│   ├── patient.py
+│   ├── exercise.py
 │   ├── measurement.py
-│   ├── rom_assessment.py
-│   ├── mmt_assessment.py
-│   ├── tug_assessment.py
-│   ├── sf_36_assessment.py
-│   ├── womac_assessment.py
-│   └── koos_assessment.py
-├── model/
-│   ├── __init__.py
-│   ├── clinician.py
+│   ├── objective_measurement.py
 │   ├── patient.py
-│   ├── measurement.py
-│   ├── rom_assessment.py
-│   ├── mmt_assessment.py
-│   ├── tug_assessment.py
-│   ├── sf_36_assessment.py
-│   ├── womac_assessment.py
-│   └── koos_assessment.py
-├── schema/
-│   ├── __init__.py
-│   ├── clinician.py
-│   ├── patient.py
-│   ├── measurement.py
-│   ├── rom_assessment.py
-│   ├── mmt_assessment.py
-│   ├── tug_assessment.py
-│   ├── sf_36_assessment.py
-│   ├── womac_assessment.py
-│   └── koos_assessment.py
+│   ├── treatment.py
+│   └── treatment_result.py
 ├── crud/
 │   ├── __init__.py
 │   ├── base.py
 │   ├── clinician.py
-│   ├── patient.py
+│   ├── exercise.py
 │   ├── measurement.py
-│   ├── rom_assessment.py
-│   ├── mmt_assessment.py
-│   ├── tug_assessment.py
-│   ├── sf_36_assessment.py
-│   ├── womac_assessment.py
-│   └── koos_assessment.py
-└── core/
-    ├── __init__.py
-    ├── config.py
-    ├── database.py
-    ├── security.py
-    └── dependencies.py
+│   ├── objective_measurement.py
+│   ├── patient.py
+│   ├── treatment.py
+│   ├── treatment_content.py
+│   └── treatment_result.py
+├── model/
+│   ├── __init__.py
+│   ├── base.py
+│   ├── clinician.py
+│   ├── exercise.py
+│   ├── measurement.py
+│   ├── objective_measurement.py
+│   ├── patient.py
+│   ├── treatment.py
+│   ├── treatment_content.py
+│   └── treatment_result.py
+├── schema/
+│   ├── __init__.py
+│   ├── auth.py
+│   ├── clinician.py
+│   ├── exercise.py
+│   ├── measurement.py
+│   ├── objective_measurement.py
+│   ├── patient.py
+│   ├── treatment.py
+│   └── treatment_result.py
+├── core/
+│   ├── __init__.py
+│   ├── config.py
+│   ├── database.py
+│   ├── httpResponseMethod.py
+│   ├── redis.py
+│   └── security.py
+└── util/
+    ├── datetimeConverter.py
+    ├── emailSender.py
+    └── qrCodeService.py
 ```
 
 ---
@@ -90,15 +91,12 @@ webServer/
 | `clinician` | 臨床醫師帳號與基本資料 |
 | `patient` | 病患基本資料與病史 |
 | `measurement` | 病患單次評估紀錄 |
-| `rom_assessment` | 關節活動度（ROM）評估 |
-| `mmt_assessment` | 徒手肌力測試（MMT）評估 |
-| `tug_assessment` | 計時起走測試（TUG）評估 |
-| `sf_36_assessment` | SF-36 生活品質量表 |
-| `womac_assessment` | WOMAC 骨關節炎量表 |
-| `koos_assessment` | KOOS 膝關節損傷量表 |
+| `objective_measurement` | 病患客觀量測數據 |
 | `treatment` | 病患治療計畫 |
 | `treatment_content` | 治療計畫的動作內容 |
+| `treatment_result` | 病患實際訓練結果紀錄 |
 | `exercise` | 運動動作定義 |
+| `contraindication` | 禁忌症條件清單 |
 
 ---
 
@@ -150,6 +148,7 @@ webServer/
 | `symptom_duration_months` | int | ✓ | 病程（月） |
 | `visit_flow` | str | ✓ | 就診流程紀錄 |
 | `other_knee_treatment_comment` | str | ✓ | 接受其他膝蓋治療描述 |
+| `contraindications` | array | ✓ | 禁忌症列表 |
 | `created_at` | int (Unix timestamp) | | 建立時間 |
 | `updated_at` | int (Unix timestamp) | | 更新時間 |
 
@@ -235,6 +234,9 @@ webServer/
 | `sets` | int | | 組數 |
 | `set_rest_time` | int | | 組間休息時間（秒） |
 | `reps` | int | | 每組次數 |
+| `es_intensity` | float | ✓ | 電刺激強度（mA）0~10mA |
+| `es_frequency` | float | ✓ | 電刺激頻率（Hz）20~60Hz |
+| `es_pulse_width` | float | ✓ | 電刺激脈寬（µs）200~400μs|
 | `date` | int (Unix timestamp) | | 規劃時間 |
 
 ---
@@ -264,3 +266,14 @@ webServer/
 | `reps` | int | | 實作總次數 |
 | `total_time` | int | | 實作總時間（秒） |
 | `date` | int (Unix timestamp) | | 實作時間 |
+
+---
+
+## contraindication
+
+禁忌症條件清單。程式啟動時若資料表為空，自動從 `util/contraindication.json` 寫入初始資料。
+
+| 欄位 | 型別 | Nullable | 說明 |
+|---|---|:---:|---|
+| `id` | int | | 主鍵 |
+| `name` | str | | 禁忌症條件 |

@@ -8,6 +8,9 @@ class TreatmentContentInput(BaseModel):
     sets: int
     reps: int
     set_rest_time: int
+    es_intensity: Optional[float] = None
+    es_frequency: Optional[float] = None
+    es_pulse_width: Optional[float] = None
     date: int
 
 
@@ -17,6 +20,9 @@ class TreatmentContentItem(BaseModel):
     sets: int
     reps: int
     set_rest_time: int
+    es_intensity: Optional[float] = None
+    es_frequency: Optional[float] = None
+    es_pulse_width: Optional[float] = None
     date: int
 
 
@@ -26,6 +32,9 @@ class TreatmentContentCreate(BaseModel):
     sets: int
     reps: int
     set_rest_time: int
+    es_intensity: Optional[float] = None
+    es_frequency: Optional[float] = None
+    es_pulse_width: Optional[float] = None
     date: int
 
 
@@ -34,6 +43,9 @@ class TreatmentContentUpdate(BaseModel):
     sets: Optional[int] = None
     reps: Optional[int] = None
     set_rest_time: Optional[int] = None
+    es_intensity: Optional[float] = None
+    es_frequency: Optional[float] = None
+    es_pulse_width: Optional[float] = None
     date: Optional[int] = None
 
 

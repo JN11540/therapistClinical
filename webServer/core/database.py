@@ -29,6 +29,7 @@ async def connect_db() -> None:
     import model.exercise               # noqa: F401
     import model.treatment              # noqa: F401
     import model.treatment_content      # noqa: F401
+    import model.contraindication       # noqa: F401
 
     max_retries = settings.DB_CONNECT_MAX_RETRIES
     delay = settings.DB_CONNECT_RETRY_DELAY
