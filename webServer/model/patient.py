@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from model.base import Base
 
@@ -23,5 +24,6 @@ class Patient(Base):
     symptom_duration_months = Column(Integer, nullable=True)
     visit_flow = Column(String, nullable=True)
     other_knee_treatment_comment = Column(String, nullable=True)
+    contraindications = Column(ARRAY(Integer), nullable=True)
     created_at = Column(Integer, nullable=False)
     updated_at = Column(Integer, nullable=False)
