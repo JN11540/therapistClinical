@@ -186,6 +186,8 @@ class TreatmentService:
             treatment = await self.crud_treatment.update(session, obj_in=update_data, db_obj=db_obj)
             print(f"[update_full] treatment updated, contents={data.contents is not None}", flush=True)
             if data.contents is not None:
+                await self.crud_result.delete_by_treatment_id(session, data.id)
+                print(f"[update_full] old results deleted", flush=True)
                 await self.crud_content.delete_by_treatment_id(session, data.id)
                 print(f"[update_full] old contents deleted", flush=True)
                 content_list = []
