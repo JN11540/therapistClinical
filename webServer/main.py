@@ -28,15 +28,27 @@ redis = Redis()
 
 async def run_migrations() -> None:
     async with engine.connect() as conn:
-        result = await conn.execute(
-            text("SELECT to_regclass('public.alembic_version')")
-        )
-        alembic_exists = result.scalar() is not None
+        result = await conn.execute(text("SELECT to_regclass('public.alembic_version')"))
+        alembic_table_exists = result.scalar() is not None
 
-    if not alembic_exists:
-        subprocess.run(["alembic", "stamp", "head"], check=True)
-    else:
-        subprocess.run(["alembic", "upgrade", "head"], check=True)
+        result = await conn.execute(text(
+            "SELECT 1 FROM information_schema.columns "
+            "WHERE table_name='patient' AND column_name='contraindications'"
+        ))
+        col_exists = result.scalar() is not None
+
+        if alembic_table_exists:
+            if not col_exists:
+                # 錯誤 stamp：alembic_version 記錄版本但欄位實際不存在，重設
+                await conn.execute(text("DELETE FROM alembic_version"))
+                await conn.commit()
+        else:
+            if col_exists:
+                # 全新 DB：create_all 已建好所有欄位，stamp 告知 alembic 目前狀態
+                subprocess.run(["alembic", "stamp", "head"], check=True)
+                return
+
+    subprocess.run(["alembic", "upgrade", "head"], check=True)
 
 
 @asynccontextmanager
