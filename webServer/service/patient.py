@@ -68,6 +68,20 @@ class PatientService:
                 return await HttpResponseMethod.not_found(
                     message=f"Patient {patient_id} not found"
                 )
+            if data.contraindications is not None and len(data.contraindications) > 0:
+                treatments = await self.crud_treatment.get_multi(session, patient_id=patient_id)
+                for t in treatments:
+                    contents = await self.crud_content.get_by_treatment_id(session, t.id)
+                    has_es = any(
+                        c.es_intensity is not None or
+                        c.es_frequency is not None or
+                        c.es_pulse_width is not None
+                        for c in contents
+                    )
+                    if has_es:
+                        return await HttpResponseMethod.bad_request(
+                            message="治療計畫包含電刺激設定，不得勾選個案禁忌症選項，請先解除電刺激設定"
+                        )
             cur = datetimeConverter.get_current_timestamp()
             update_data = PatientUpdate(
                 **data.dict(),
