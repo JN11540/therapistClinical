@@ -17,6 +17,7 @@ async def connect_db() -> None:
     import model.exercise               # noqa: F401
     import model.treatment              # noqa: F401
     import model.treatment_content      # noqa: F401
+    import model.contraindication       # noqa: F401
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

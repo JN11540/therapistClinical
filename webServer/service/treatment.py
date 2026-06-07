@@ -91,12 +91,25 @@ class TreatmentService:
         except Exception as e:
             return await HttpResponseMethod.internal_server_error(message=str(e))
 
+    @staticmethod
+    def _has_es(contents) -> bool:
+        return any(
+            item.es_intensity is not None or
+            item.es_frequency is not None or
+            item.es_pulse_width is not None
+            for item in contents
+        )
+
     async def create_full(self, session: AsyncSession, data: TreatmentFullCreateRequest):
         try:
             patient = await self.crud_patient.get(session, id=data.patient_id)
             if patient is None:
                 return await HttpResponseMethod.not_found(
                     message=f"Patient {data.patient_id} not found"
+                )
+            if self._has_es(data.contents) and patient.contraindications:
+                return await HttpResponseMethod.bad_request(
+                    message="個案具有禁忌症，不得進行電刺激設定"
                 )
             for item in data.contents:
                 exercise = await self.crud_exercise.get(session, id=item.exercise_id)
@@ -117,11 +130,7 @@ class TreatmentService:
             for item in data.contents:
                 content_create = TreatmentContentCreate(
                     treatment_id=treatment.id,
-                    exercise_id=item.exercise_id,
-                    sets=item.sets,
-                    reps=item.reps,
-                    set_rest_time=item.set_rest_time,
-                    date=item.date,
+                    **item.dict(),
                 )
                 content = await self.crud_content.create(session, obj_in=content_create)
                 content_list.append(TreatmentContentItem(**{k: v for k, v in content.dict().items() if k != "treatment_id"}))
@@ -155,6 +164,12 @@ class TreatmentService:
                 return await HttpResponseMethod.not_found(
                     message=f"Treatment {data.id} not found"
                 )
+            if data.contents is not None and self._has_es(data.contents):
+                patient = await self.crud_patient.get(session, id=db_obj.patient_id)
+                if patient and patient.contraindications:
+                    return await HttpResponseMethod.bad_request(
+                        message="個案具有禁忌症，不得進行電刺激設定"
+                    )
             if data.contents is not None:
                 for item in data.contents:
                     exercise = await self.crud_exercise.get(session, id=item.exercise_id)
@@ -171,11 +186,7 @@ class TreatmentService:
                 for item in data.contents:
                     content_create = TreatmentContentCreate(
                         treatment_id=data.id,
-                        exercise_id=item.exercise_id,
-                        sets=item.sets,
-                        reps=item.reps,
-                        set_rest_time=item.set_rest_time,
-                        date=item.date,
+                        **item.dict(),
                     )
                     content = await self.crud_content.create(session, obj_in=content_create)
                     content_list.append(TreatmentContentItem(**{k: v for k, v in content.dict().items() if k != "treatment_id"}))

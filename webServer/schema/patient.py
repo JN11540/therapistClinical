@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel
 
 
@@ -21,6 +21,7 @@ class CreateRequest(BaseModel):
     symptom_duration_months: Optional[int] = None
     visit_flow: Optional[str] = None
     other_knee_treatment_comment: Optional[str] = None
+    contraindications: Optional[List[int]] = None
 
 
 class UpdateRequest(BaseModel):
@@ -40,6 +41,7 @@ class UpdateRequest(BaseModel):
     symptom_duration_months: Optional[int] = None
     visit_flow: Optional[str] = None
     other_knee_treatment_comment: Optional[str] = None
+    contraindications: Optional[List[int]] = None
 
 
 class PatientCreate(BaseModel):
@@ -61,6 +63,7 @@ class PatientCreate(BaseModel):
     symptom_duration_months: Optional[int] = None
     visit_flow: Optional[str] = None
     other_knee_treatment_comment: Optional[str] = None
+    contraindications: Optional[List[int]] = None
     created_at: Optional[int] = None
     updated_at: Optional[int] = None
 
@@ -82,6 +85,7 @@ class PatientUpdate(BaseModel):
     symptom_duration_months: Optional[int] = None
     visit_flow: Optional[str] = None
     other_knee_treatment_comment: Optional[str] = None
+    contraindications: Optional[List[int]] = None
     updated_at: Optional[int] = None
 
 
@@ -105,6 +109,7 @@ class PatientResponse(BaseModel):
     symptom_duration_months: Optional[int] = None
     visit_flow: Optional[str] = None
     other_knee_treatment_comment: Optional[str] = None
+    contraindications: Optional[List[int]] = None
 
 
 class PatientListItem(BaseModel):
@@ -125,3 +130,4 @@ class PatientListItem(BaseModel):
     symptom_duration_months: Optional[int] = None
     visit_flow: Optional[str] = None
     other_knee_treatment_comment: Optional[str] = None
+    contraindications: Optional[List[int]] = None

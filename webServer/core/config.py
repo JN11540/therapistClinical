@@ -8,6 +8,7 @@ TEMPLATE_DIR = BASE_DIR / "webClient" / "www" / "template"
 INDEX_HTML   = BASE_DIR / "webClient" / "www" / "index.html"
 EXERCISE_JSON = BASE_DIR / "webServer" / "util" / "exercise.json"
 TREATMENT_JSON = BASE_DIR / "webServer" / "util" / "treatment.json"
+CONTRAINDICATION_JSON = BASE_DIR / "webServer" / "util" / "contraindication.json"
 
 class Settings:
     POSTGRES_URI = os.environ.get(
