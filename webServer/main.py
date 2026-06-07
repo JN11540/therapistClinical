@@ -17,6 +17,7 @@ from controller.objective_measurement import router as objective_measurement_rou
 from controller.exercise import router as exercise_router
 from controller.treatment import router as treatment_router
 from controller.treatment_result import router as treatment_result_router
+from controller.contraindication import router as contraindication_router
 from core.database import connect_db, disconnect_db, db_heartbeat, engine
 from core.redis import Redis
 from service.exercise import ExerciseService
