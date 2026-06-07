@@ -18,7 +18,6 @@ from controller.exercise import router as exercise_router
 from controller.treatment import router as treatment_router
 from controller.treatment_result import router as treatment_result_router
 from core.database import connect_db, disconnect_db, db_heartbeat, engine
-from core.config import STATIC_DIR
 from core.redis import Redis
 from service.exercise import ExerciseService
 from service.contraindication import ContraindicationService
