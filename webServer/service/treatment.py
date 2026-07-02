@@ -290,12 +290,15 @@ class TreatmentService:
 
     async def get_qrcode(self, session: AsyncSession, treatment_id: int):
         try:
+            print(f"[get_qrcode] start treatment_id={treatment_id}")
             treatment = await self.crud_treatment.get(session, id=treatment_id)
+            print(f"[get_qrcode] treatment={treatment}")
             if treatment is None:
                 return await HttpResponseMethod.not_found(
                     message=f"Treatment {treatment_id} not found"
                 )
             contents = await self.crud_content.get_by_treatment_id(session, treatment_id)
+            print(f"[get_qrcode] contents={contents}")
             plan_data = {
                 "id": treatment.id,
                 "name": treatment.name,
@@ -307,14 +310,19 @@ class TreatmentService:
                     for c in contents
                 ],
             }
+            print(f"[get_qrcode] plan_data={plan_data}")
             qr_service = QRCodeService()
             qr_service.generate_qrcode(data=plan_data)
+            print(f"[get_qrcode] qrcode generated at {qr_service._output_path}")
             return FileResponse(
                 path=str(qr_service._output_path),
                 media_type="image/png",
                 filename=f"treatment_{treatment_id}_qrcode.png",
             )
         except Exception as e:
+            print(f"[get_qrcode] ERROR: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
             return await HttpResponseMethod.internal_server_error(message=str(e))
 
     async def get_by_patient_id(self, session: AsyncSession, patient_id: int):
