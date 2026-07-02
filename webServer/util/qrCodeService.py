@@ -19,6 +19,7 @@ class QRCodeService:
         self._output_path = Path(__file__).parent / "patient_qrcode.png"
 
     def generate_sig(self, payload: dict) -> str:
+        print(f"[QRCodeService.generate_sig] payload={payload}")
         payload_str = json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(',', ':'))
         sig = hmac.new(
             self._secret.encode("utf-8"),
@@ -31,12 +32,14 @@ class QRCodeService:
         self,
         data: dict,
     ) -> dict:
+        print(f"[QRCodeService.generate_qrcode] data={data}")
         expiry = (datetime.now(timezone.utc) + timedelta(minutes=self._expiry_minutes)).isoformat()
         payload = {"data": data, "expiry": expiry}
         sig = self.generate_sig(payload)
         payload_with_sig = {**payload, "sig": sig}
 
         qr_content = json.dumps(payload_with_sig, ensure_ascii=False)
+        print(f"[QRCodeService.generate_qrcode] qr_content_len={len(qr_content)}")
         qr = qrcode_lib.QRCode(
             version=None,
             error_correction=qrcode_lib.constants.ERROR_CORRECT_M,
