@@ -126,14 +126,15 @@ class TreatmentService:
                 created_at=cur,
             )
             treatment = await self.crud_treatment.create(session, obj_in=create_data)
-            content_list = []
-            for item in data.contents:
-                content_create = TreatmentContentCreate(
-                    treatment_id=treatment.id,
-                    **item.dict(),
-                )
-                content = await self.crud_content.create(session, obj_in=content_create)
-                content_list.append(TreatmentContentItem(**{k: v for k, v in content.dict().items() if k != "treatment_id"}))
+            content_creates = [
+                TreatmentContentCreate(treatment_id=treatment.id, **item.dict())
+                for item in data.contents
+            ]
+            created_contents = await self.crud_content.create_multi(session, objs_in=content_creates)
+            content_list = [
+                TreatmentContentItem(**{k: v for k, v in c.dict().items() if k != "treatment_id"})
+                for c in created_contents
+            ]
             return await HttpResponseMethod.ok(
                 data=TreatmentFullResponse(**treatment.dict(), contents=content_list).dict(),
                 message=f"Treatment {treatment.id} created successfully",
@@ -184,14 +185,15 @@ class TreatmentService:
                 await self.crud_result.delete_by_treatment_id(session, data.id)
                 print(f"[update_full] old results deleted", flush=True)
                 await self.crud_content.delete_by_treatment_id(session, data.id)
-                content_list = []
-                for item in data.contents:
-                    content_create = TreatmentContentCreate(
-                        treatment_id=data.id,
-                        **item.dict(),
-                    )
-                    content = await self.crud_content.create(session, obj_in=content_create)
-                    content_list.append(TreatmentContentItem(**{k: v for k, v in content.dict().items() if k != "treatment_id"}))
+                content_creates = [
+                    TreatmentContentCreate(treatment_id=data.id, **item.dict())
+                    for item in data.contents
+                ]
+                created_contents = await self.crud_content.create_multi(session, objs_in=content_creates)
+                content_list = [
+                    TreatmentContentItem(**{k: v for k, v in c.dict().items() if k != "treatment_id"})
+                    for c in created_contents
+                ]
             else:
                 contents = await self.crud_content.get_by_treatment_id(session, data.id)
                 content_list = [TreatmentContentItem(**{k: v for k, v in c.dict().items() if k != "treatment_id"}) for c in contents]

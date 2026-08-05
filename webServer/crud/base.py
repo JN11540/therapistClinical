@@ -22,6 +22,14 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         await session.commit()
         return db_obj
 
+    async def create_multi(
+        self, session: AsyncSession, objs_in: List[CreateSchemaType]
+    ) -> List[ModelType]:
+        db_objs = [self._model(**dict(obj_in)) for obj_in in objs_in]
+        session.add_all(db_objs)
+        await session.commit()
+        return db_objs
+
     async def get(self, session: AsyncSession, *args, **kwargs) -> Optional[ModelType]:
         result = await session.execute(
             select(self._model).filter(*args).filter_by(**kwargs)
