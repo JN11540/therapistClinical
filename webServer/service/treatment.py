@@ -159,61 +159,61 @@ class TreatmentService:
             return await HttpResponseMethod.internal_server_error(message=str(e))
 
     async def update_full(self, session: AsyncSession, data: TreatmentFullUpdateRequest):
-    try:
-        db_obj = await self.crud_treatment.get(session, id=data.id)
-        if db_obj is None:
-            return await HttpResponseMethod.not_found(
-                message=f"Treatment {data.id} not found"
-            )
-
-        if data.contents is not None and self._has_es(data.contents):
-            patient = await self.crud_patient.get(session, id=db_obj.patient_id)
-            if patient and patient.contraindications:
-                return await HttpResponseMethod.bad_request(
-                    message="個案具有禁忌症，不得進行電刺激設定"
+        try:
+            db_obj = await self.crud_treatment.get(session, id=data.id)
+            if db_obj is None:
+                return await HttpResponseMethod.not_found(
+                    message=f"Treatment {data.id} not found"
                 )
 
-        if data.contents is not None:
-            for item in data.contents:
-                exercise = await self.crud_exercise.get(session, id=item.exercise_id)
-                if exercise is None:
-                    return await HttpResponseMethod.not_found(
-                        message=f"Exercise {item.exercise_id} not found"
+            if data.contents is not None and self._has_es(data.contents):
+                patient = await self.crud_patient.get(session, id=db_obj.patient_id)
+                if patient and patient.contraindications:
+                    return await HttpResponseMethod.bad_request(
+                        message="個案具有禁忌症，不得進行電刺激設定"
                     )
 
-        cur = datetimeConverter.get_current_timestamp()
-        update_data = TreatmentUpdate(**data.dict(exclude={"contents"}), updated_at=cur)
-        treatment = await self.crud_treatment.update(session, obj_in=update_data, db_obj=db_obj)
+            if data.contents is not None:
+                for item in data.contents:
+                    exercise = await self.crud_exercise.get(session, id=item.exercise_id)
+                    if exercise is None:
+                        return await HttpResponseMethod.not_found(
+                            message=f"Exercise {item.exercise_id} not found"
+                        )
 
-        if data.contents is not None:
-            await self.crud_result.delete_by_treatment_id(session, data.id)
-            await self.crud_content.delete_by_treatment_id(session, data.id)
+            cur = datetimeConverter.get_current_timestamp()
+            update_data = TreatmentUpdate(**data.dict(exclude={"contents"}), updated_at=cur)
+            treatment = await self.crud_treatment.update(session, obj_in=update_data, db_obj=db_obj)
 
-            content_creates = [
-                TreatmentContentCreate(treatment_id=data.id, **item.dict())
-                for item in data.contents
-            ]
-            created_contents = await self.crud_content.create_multi(session, objs_in=content_creates)
-            content_list = [
-                TreatmentContentItem(**{k: v for k, v in c.dict().items() if k != "treatment_id"})
-                for c in created_contents
-            ]
-        else:
-            contents = await self.crud_content.get_by_treatment_id(session, data.id)
-            content_list = [
-                TreatmentContentItem(**{k: v for k, v in c.dict().items() if k != "treatment_id"})
-                for c in contents
-            ]
+            if data.contents is not None:
+                await self.crud_result.delete_by_treatment_id(session, data.id)
+                await self.crud_content.delete_by_treatment_id(session, data.id)
 
-        return await HttpResponseMethod.ok(
-            data=TreatmentFullResponse(**treatment.dict(), contents=content_list).dict(),
-            message=f"Treatment {data.id} updated successfully",
-        )
-    except Exception as e:
-        import traceback
-        print(f"[update_full] ERROR: {e}", flush=True)
-        print(traceback.format_exc(), flush=True)
-        return await HttpResponseMethod.internal_server_error(message=str(e))
+                content_creates = [
+                    TreatmentContentCreate(treatment_id=data.id, **item.dict())
+                    for item in data.contents
+                ]
+                created_contents = await self.crud_content.create_multi(session, objs_in=content_creates)
+                content_list = [
+                    TreatmentContentItem(**{k: v for k, v in c.dict().items() if k != "treatment_id"})
+                    for c in created_contents
+                ]
+            else:
+                contents = await self.crud_content.get_by_treatment_id(session, data.id)
+                content_list = [
+                    TreatmentContentItem(**{k: v for k, v in c.dict().items() if k != "treatment_id"})
+                    for c in contents
+                ]
+
+            return await HttpResponseMethod.ok(
+                data=TreatmentFullResponse(**treatment.dict(), contents=content_list).dict(),
+                message=f"Treatment {data.id} updated successfully",
+            )
+        except Exception as e:
+            import traceback
+            print(f"[update_full] ERROR: {e}", flush=True)
+            print(traceback.format_exc(), flush=True)
+            return await HttpResponseMethod.internal_server_error(message=str(e))
 
     async def delete_full(self, session: AsyncSession, treatment_id: int):
         try:
