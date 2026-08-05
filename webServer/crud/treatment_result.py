@@ -13,7 +13,7 @@ class CRUDTreatmentResult(CRUDBase[TreatmentResult, TreatmentResultCreate, Treat
         super().__init__(TreatmentResult)
 
     async def get_by_treatment_id(self, session: AsyncSession, treatment_id: int) -> List[TreatmentResult]:
-        return await self.get_multi(session, treatment_id=treatment_id)
+        return await self.get_multi(session, treatment_id=treatment_id, limit=None)
 
     async def get_by_content_id(self, session: AsyncSession, treatment_content_id: int) -> List[TreatmentResult]:
         return await self.get_multi(session, treatment_content_id=treatment_content_id)

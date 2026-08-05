@@ -13,7 +13,7 @@ class CRUDTreatmentContent(CRUDBase[TreatmentContent, TreatmentContentCreate, Tr
         super().__init__(TreatmentContent)
 
     async def get_by_treatment_id(self, session: AsyncSession, treatment_id: int) -> List[TreatmentContent]:
-        return await self.get_multi(session, treatment_id=treatment_id)
+        return await self.get_multi(session, treatment_id=treatment_id, limit=None)
 
     async def delete_by_treatment_id(self, session: AsyncSession, treatment_id: int) -> None:
         await session.execute(delete(TreatmentContent).where(TreatmentContent.treatment_id == treatment_id))
