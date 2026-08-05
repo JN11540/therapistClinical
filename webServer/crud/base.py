@@ -37,15 +37,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return result.scalars().first()
 
     async def get_multi(
-        self, session: AsyncSession, *args, offset: int = 0, limit: int = 100, **kwargs
+        self, session: AsyncSession, *args, offset: int = 0, limit: Optional[int] = 100, **kwargs
     ) -> List[ModelType]:
-        result = await session.execute(
+        query = (
             select(self._model)
             .filter(*args)
             .filter_by(**kwargs)
             .offset(offset)
-            .limit(limit)
         )
+        if limit is not None:
+            query = query.limit(limit)
+        result = await session.execute(query)
         return result.scalars().all()
 
     async def update(
